@@ -14,6 +14,7 @@ const _ = require("lodash");
  * @property {?(boolean|string|[string])} [locked=false] - Powerful command access control. `false` command is not locked, `true` command is locked, `string` command is locked to a user group name or an account id, `Array` command is locked to any number of group names or account ids
  * @property {?PermissionResolvable} [clientPermissions=null] - PermissionResolvable the client must have in the scope of a guild for the command to work
  * @property {?PermissionResolvable} [userPermissions=null] - PermissionResolvable the user of the command must have in the scope of a guild to use the command
+ * @property {?boolean} [funconly=false] - Boolean describing if it should be used on func.zone only.
  */
 
 /**
@@ -86,6 +87,11 @@ class CommandBlock extends BaseBlock {
      * @type {?PermissionResolvable}
      */
     this.userPermissions = _.has(data, "userPermissions") && !_.isNil(data.userPermissions) ? data.userPermissions : null;
+
+    /**
+     * @type {?boolean}
+     */
+    this.funconly = _.has(data, "funconly") && !_.isNil(data.funconly) ? data.funconly : false;
 
     // Methods
     // Note that bind() isn't used here in favor of doing it in CommandConstruct's load method, so that it can bind parameters as well

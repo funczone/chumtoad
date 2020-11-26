@@ -1,13 +1,16 @@
 const CommandConstruct = require("./CommandConstruct");
 const EventConstruct = require("./EventConstruct");
 const log = require("./log");
+
 const Discord = require("discord.js");
 const low = require("lowdb");
 const FileSync = require("lowdb/adapters/FileSync");
 const fse = require("fs-extra");
 const path = require("path");
+
 const configPath = path.join(__dirname, "../data/config.json");
-const defaultConfig = require("./defaultConfig");
+const storagePath = path.join(__dirname, "../data/storage.json");
+const { defaultConfig, defaultStorage } = require("./defaults");
 
 /**
  * Extension of the discord.js client
@@ -29,6 +32,12 @@ class Client extends Discord.Client {
      */
     this.config = low(new FileSync(configPath));
     this.config.defaultsDeep(defaultConfig).write();
+
+    /**
+     * Storage database via lowdb
+     */
+    this.storage = low(new FileSync(storagePath));
+    this.storage.defaultsDeep(defaultStorage).write()
 
     /**
      * Arbitrary Collection

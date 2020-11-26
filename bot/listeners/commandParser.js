@@ -8,7 +8,7 @@ module.exports = new ListenerBlock({
   if (message.author.bot) return;
   const config = client.config.get("commands").value();
   if (!config.scope.includes(message.channel.type)) return;
-  const users = client.config.get("users").value();
+  const users = client.storage.get("users").value();
   if (users.allowed !== null) {
     if (!users.allowed.includes(message.author.id)) return;
   }
@@ -45,5 +45,6 @@ module.exports = new ListenerBlock({
   const name = args.shift().toLowerCase();
   input.parsed = input.parsed.slice(name.length).trim();
   if (!input.parsed.length) input.parsed = null;
+  client.emit("command", message);
   client.commands.run(name, message, input.parsed, args);
 });
