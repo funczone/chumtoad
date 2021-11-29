@@ -66,6 +66,7 @@ module.exports = new CommandBlock({
     embed.addField(`Basic Info`, `IP: \`${vanity}\`\nConnect: steam://connect/${vanity}`);
 
     let players = "";
+    info.players.sort((a, b) => (a.score < b.score) ? 1 : -1);
     for(i = 0; i < info.players.length; i++) {
       let ply = info.players[i];
       players += `${i + 1}. ${ply.name ? `${ply.name} (${ply.score})` : "Joining in..."}\n`;
