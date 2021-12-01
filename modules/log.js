@@ -26,9 +26,10 @@ const styles = {
 
 // Wrapper function approach
 
-const moment = require("moment");
+const { DateTime } = require("luxon");
+const timestamp = "HH:mm:ss.SSS";
 const print = function(level, ...args) {
-  const prefix = `${chalk.gray(moment().format("HH:mm:ss.SSS"))} ${styles[level](labels[level])}`;
+  const prefix = `${chalk.gray(DateTime.now().toFormat(timestamp))} ${styles[level](labels[level])}`;
   return level > 1 ? console.log(prefix, ...args) : console.error(prefix, ...args);
 };
 module.exports = (...args) => print(3, ...args);
@@ -38,6 +39,7 @@ module.exports.info = (...args) => print(3, ...args);
 module.exports.warn = (...args) => print(2, ...args);
 module.exports.error = (...args) => print(1, ...args);
 module.exports.fatal = (...args) => print(0, ...args);
+module.exports.timestamp = timestamp;
 
 // Bind approach (no timestamps)
 /*
