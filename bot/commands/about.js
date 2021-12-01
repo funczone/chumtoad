@@ -4,7 +4,7 @@ const { DateTime, Duration } = require("luxon");
 const { gitinfo } = require("../../modules/miscellaneous");
 
 const description = [
-  `Hey! I'm a bot that manages [func.zone](https://func.zone). I hold the commands that are necessary for the servers functioning. If you have any questions or requests about/for it, contact my owner.`,
+  `Hey! I'm a bot that manages [func.zone](https://func.zone). I hold the commands that are necessary for the servers functioning. If you have any questions or requests about/for it, contact my owner.\n`,
   `This bot is owned and operated by **<@183740622484668416>**, powered by **[node.js](https://nodejs.org/en/) v${process.versions["node"]}**, **[discord.js](https://discord.js.org) v${Discord.version}**, and **[sandplate](https://github.com/06000208/sandplate)**.`
 ].join("\n");
 

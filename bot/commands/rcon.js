@@ -36,10 +36,3 @@ module.exports = [
     return server.end();
   })
 ];
-
-/* 
-in the future, dealing with other servers;
-- create a command that lists and allows individual users to cycle between servers.
-  - for example, "chum rconsv tf2" would let *that* user target the tf2 server.
-  - "chum rconsv list" would list every possible server 
-*/

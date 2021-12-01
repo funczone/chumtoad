@@ -3,6 +3,10 @@
  * @namespace
  * @property {Object} client - Config options concerning the client
  * @property {?string} client.token - Token of the account to login with
+ * @property {Object} starboard - Starboard options.
+ * @property {boolean} starboard.enabled - Enable starboard?
+ * @property {string} starboard.guild - Guild of starboard.
+ * @property {string} starboard.channel - Channel where positive reactions are logged.
  * @property {Object} commands - Config options concerning commands
  * @property {string} commands.directory - Path of a folder where modules are located
  * @property {[string]} commands.scope - An array of channel types where commands are allowed. https://discord.js.org/#/docs/main/stable/class/Channel?scrollTo=type
@@ -31,6 +35,11 @@
 const defaultConfig = {
   "client": {
     "token": null,
+  },
+  "starboard": {
+    "enabled": false,
+    "guild": null,
+    "channel": null,
   },
   "commands": {
     "directory": "./bot/commands/",
