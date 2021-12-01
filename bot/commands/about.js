@@ -1,9 +1,12 @@
 const CommandBlock = require("../../modules/CommandBlock");
 const Discord = require("discord.js");
-const moment = require("moment");
+const { DateTime, Duration } = require("luxon");
+const { gitinfo } = require("../../modules/miscellaneous");
 
-const description = `Hey! I'm a bot that manages func.zone. I hold the essential commands that are necessary for the server.
-This bot is owned and operated by **<@183740622484668416>**, powered by **[node.js](https://nodejs.org/en/) v${process.versions["node"]}**, **[discord.js](https://discord.js.org) v${Discord.version}**, and **[sandplate](https://github.com/06000208/sandplate)**.`;
+const description = [
+  `Hey! I'm a bot that manages [func.zone](https://func.zone). I hold the commands that are necessary for the servers functioning. If you have any questions or requests about/for it, contact my owner.`,
+  `This bot is owned and operated by **<@183740622484668416>**, powered by **[node.js](https://nodejs.org/en/) v${process.versions["node"]}**, **[discord.js](https://discord.js.org) v${Discord.version}**, and **[sandplate](https://github.com/06000208/sandplate)**.`
+].join("\n");
 
 module.exports = new CommandBlock({
   identity: ["about"],
@@ -15,6 +18,7 @@ module.exports = new CommandBlock({
     .setDescription(description)
     .attachFiles(["assets/chumtoad.png"])
     .setThumbnail("attachment://chumtoad.png")
-    .addField("Statistics", `• **Uptime:** ${moment.duration(client.uptime).humanize()}\n• **Guilds:** ${client.guilds.cache.size}\n• **Users:** ${client.users.cache.size}`);
+    .addField("Statistics", `• **Uptime:** ${Duration.fromMillis(client.uptime).toISOTime()}\n• **Guilds:** ${client.guilds.cache.size}\n• **Users:** ${client.users.cache.size}`)
+    .setFooter(`Commit ${gitinfo("%h")} @ ${DateTime.fromMillis(parseInt(gitinfo("%ct")) * 1000).toLocaleString(DateTime.DATETIME_SHORT)}`);
   return message.channel.send(embed);
 });
