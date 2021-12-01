@@ -4,7 +4,7 @@ const { Rcon } = require("rcon-client");
 module.exports = [
   new CommandBlock({
     identity: ["rcon"],
-    description: "Creates an rcon query to the func.zone TTT server.",
+    description: "Creates an rcon query to the func.zone TTT server.\n\nConfigure the rcon connection by evaluating the following;```js\nclient.config.set(\"commands.rcon.ip\", \"< your ip address >\").write();\nclient.config.set(\"commands.rcon.pass\", \"< your rcon password >\").write();\nclient.config.set(\"commands.rcon.port\", \"< your rcon port >\").write();```", // @todo this is so lazy
     usage: "[rcon command]",
     locked: ["hosts", "staff"]
   }, async function(client, message, content, args) {
@@ -13,13 +13,12 @@ module.exports = [
 
     const ip = client.config.get("commands.rcon.ip").value();
     const pass = client.config.get("commands.rcon.pass").value();
-    if(!ip || !pass) return message.channel.send(`<:_:${negative}> You need to configure the rcon IP and password.`);
+    const port = client.config.get("commands.rcon.port").value();
+    if(!ip || !pass || !port) {
+      return message.channel.send(`<:_:${negative}> You need to configure the rcon IP, password, and port.`);
+    }
 
-    const server = new Rcon({ host: ip, port: 27015, password: pass });
-    
-    //server.on("connect", () => console.log("connected"));
-    //server.on("authenticated", () => console.log("authenticated"));
-    //server.on("end", () => console.log("end"));
+    const server = new Rcon({ host: ip, port: port, password: pass });
 
     let result;
     try {
