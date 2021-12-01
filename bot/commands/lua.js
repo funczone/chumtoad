@@ -1,6 +1,12 @@
 const CommandBlock = require("../../modules/CommandBlock");
+const os = require("os");
 const log = require("../../modules/log");
 const { spawn } = require("child_process");
+
+const lua = {
+    "win32": "",
+    "linux": "/usr/bin/lua"
+}
 
 module.exports = new CommandBlock({
     identity: "lua",
@@ -13,7 +19,11 @@ module.exports = new CommandBlock({
     const positive = client.config.get("metadata.reactions.positive").value();
     const negative = client.config.get("metadata.reactions.negative").value();
 
-    const shell = spawn("/usr/bin/lua");
+    if(os.platform() == "win32") {
+        return message.channel.send(`<:_:${negative}> The lua command is not supported on windows yet.`);
+    }
+
+    const shell = spawn(lua[os.platform()]);
     shell.stdout.on("data", (d) => {
         d = d.toString(); // buffer shits
         message.channel.send(`\`\`\`lua\n${d}\`\`\``);
