@@ -38,7 +38,7 @@ module.exports = [
     usage: "user/guild <id>",
     scope: ["dm", "text", "news"],
     nsfw: false,
-    locked: "hosts",
+    locked: ["hosts", "staff"],
     clientPermissions: ["VIEW_CHANNEL", "SEND_MESSAGES"],
     userPermissions: null,
   }, async function(client, message, content, [type, id, ...args]) {
@@ -62,7 +62,7 @@ module.exports = [
     usage: "user/guild <id>",
     scope: ["dm", "text", "news"],
     nsfw: false,
-    locked: "hosts",
+    locked: ["hosts", "staff"],
     clientPermissions: ["VIEW_CHANNEL", "SEND_MESSAGES"],
     userPermissions: null,
   }, async function(client, message, content, [type, id, ...args]) {
@@ -87,7 +87,7 @@ module.exports = [
     usage: "<group> [id]",
     scope: ["dm", "text", "news"],
     nsfw: false,
-    locked: "hosts",
+    locked: ["hosts", "staff"],
     clientPermissions: ["VIEW_CHANNEL", "SEND_MESSAGES"],
     userPermissions: null,
   }, async function(client, message, content, args) {
