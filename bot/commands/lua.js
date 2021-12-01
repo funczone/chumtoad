@@ -24,13 +24,11 @@ module.exports = new CommandBlock({
     }
 
     const shell = spawn(lua[os.platform()]);
-    shell.stdout.on("data", (d) => {
-        d = d.toString(); // buffer shits
-        message.channel.send(`\`\`\`lua\n${d}\`\`\``);
-    });
-    shell.stderr.on("data", (d) => {
-        d = d.toString();
-        message.channel.send(`\`\`\`\n${d}\`\`\``);
+    [shell.stdout, shell.stderr].forEach((e) => {
+        e.on("data", (d) => {
+            d = d.toString(); // buffer shits
+            message.channel.send(`\`\`\`lua\n${d}\`\`\``);
+        })
     });
 
     let cmds = content.split(/\r?\n/);
