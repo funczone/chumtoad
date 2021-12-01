@@ -1,12 +1,12 @@
-/* this is the shittiest thing ever and i haven't eaten in 12 hours */
 const CommandBlock = require("../../modules/CommandBlock");
 const { MessageEmbed } = require("discord.js");
+const { DateTime } = require("luxon");
 const fetch = require("node-fetch");
 const SteamID = require("steamid");
 
 module.exports = [
     new CommandBlock({
-        identity: ["steam"],
+        identity: ["steam", "steamid"],
         description: "Gets someones Steam profile information.",
         usage: "[SteamID]"
     }, async function(client, message, content, [id]) {
@@ -31,34 +31,44 @@ module.exports = [
         const resp = await fetch(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apikey}&steamids=${steamID.getSteamID64()}`);
         const json = await resp.json();
         const profile = json.response.players[0];
-        require("../../modules/log").debug(JSON.stringify(json, null, 4));
+        //require("../../modules/log").debug(JSON.stringify(json, null, 4));
 
         const embed = new MessageEmbed()
             .setColor("#1b2838")
-            .setTitle(`${profile.personaname} \`${steamID.getSteam2RenderedID(true)}\``)
+            .setTitle(profile.personaname)
             .setURL(`https://steamcommunity.com/profiles/${profile.steamid}`)
             .setThumbnail(profile.avatarfull);
         
         let description = [
-            `\`\`\`\n`,
+            `\`\`\`yaml\n`,
             profile.profileurl,
-            `SteamID64:   ${profile.steamid}`,
             `Status:      ${profile.personastate == 0 ? "Offline" : profile.personastate == 1 ? "Online" : profile.personastate == 2 ? "Busy" : profile.personastate == 3 ? "Away" : profile.personastate == 4 ? "Snooze" : profile.personastate == 5 ? "Looking to Trade" : profile.personastate == 6 ? "Looking to Play" : "Unknown"}\n`
         ].join("\n");
         
         if(profile.communityvisibilitystate === 1) { // private profile
             embed.setFooter("This profile is private.");
+        } else if(!profile.profilestate) { // no community profile
+            embed.setFooter("This user has not set up their Steam Community profile.");
         } else if(profile.communityvisibilitystate === 3) { // public profile
             description = description + [
                 `Real Name:   ${profile.realname}`,
                 `Country:     ${profile.loccountrycode}`,
-                `Created:     ${new Date(profile.timecreated * 1000)}`,
-                profile.lastlogoff && profile.personastate == 0 ? `Last online: ${new Date(profile.lastlogoff * 1000)}` : undefined,
+                `Created:     ${DateTime.fromMillis(profile.timecreated * 1000).toLocaleString(DateTime.DATETIME_MED)}`
             ].join("\n");
+            description += "\n";
+            if(profile.personastate == 0 && profile.lastlogoff) { // sometimes this isnt given in the api response i dont know why
+                description += `Last online: ${DateTime.fromMillis(profile.lastlogoff * 1000).toLocaleString(DateTime.DATETIME_MED)}\n`;
+            }
             embed.setFooter("This profile is public.");
-        } else if(!profile.profilestate) {
-            embed.setFooter("This user does not have a community profile configured.");
         }
+
+        description = description + [
+            `---`,
+            `SteamID:     ${steamID.getSteam2RenderedID(true)}`,
+            `SteamID3:    ${steamID.getSteam3RenderedID()}`,
+            `SteamID64:   ${profile.steamid}`,
+        ].join("\n");
+
         description = description + `\`\`\``;
         embed.setDescription(description);
 
