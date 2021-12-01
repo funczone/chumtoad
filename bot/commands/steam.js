@@ -45,7 +45,7 @@ module.exports = [
             `Status:      ${profile.personastate == 0 ? "Offline" : profile.personastate == 1 ? "Online" : profile.personastate == 2 ? "Busy" : profile.personastate == 3 ? "Away" : profile.personastate == 4 ? "Snooze" : profile.personastate == 5 ? "Looking to Trade" : profile.personastate == 6 ? "Looking to Play" : "Unknown"}\n`
         ].join("\n");
         
-        if(profile.communityvisibilitystate === 1) { // private profile
+        if(profile.communityvisibilitystate !== 3) { // private profile
             embed.setFooter("This profile is private.");
         } else if(!profile.profilestate) { // no community profile
             embed.setFooter("This user has not set up their Steam Community profile.");
