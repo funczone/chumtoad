@@ -50,13 +50,15 @@ module.exports = [
         } else if(!profile.profilestate) { // no community profile
             embed.setFooter("This user has not set up their Steam Community profile.");
         } else if(profile.communityvisibilitystate === 3) { // public profile
-            description = description + [
-                `Real Name:   ${profile.realname}`,
-                `Country:     ${profile.loccountrycode}`,
-                `Created:     ${DateTime.fromMillis(profile.timecreated * 1000).toLocaleString(DateTime.DATETIME_MED)}`
-            ].join("\n");
-            description += "\n";
-            if(profile.personastate == 0 && profile.lastlogoff) { // sometimes this isnt given in the api response i dont know why
+            // some of these aren't given in the api response.
+            if(profile.realname) {
+                description += `Real Name:   ${profile.realname}\n`;
+            }
+            if(profile.loccountrycode) {
+                description += `Country:     ${profile.loccountrycode}\n`;
+            }
+            description += `Created:     ${DateTime.fromMillis(profile.timecreated * 1000).toLocaleString(DateTime.DATETIME_MED)}\n`;
+            if(profile.personastate == 0 && profile.lastlogoff) { // unsure why this isn't given sometimes... but ok
                 description += `Last online: ${DateTime.fromMillis(profile.lastlogoff * 1000).toLocaleString(DateTime.DATETIME_MED)}\n`;
             }
             embed.setFooter("This profile is public.");
@@ -68,7 +70,6 @@ module.exports = [
             `SteamID3:    ${steamID.getSteam3RenderedID()}`,
             `SteamID64:   ${profile.steamid}`,
         ].join("\n");
-
         description = description + `\`\`\``;
         embed.setDescription(description);
 
