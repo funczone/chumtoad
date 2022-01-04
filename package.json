@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/06000208/sandplate#readme",
   "dependencies": {
+    "bufferpack": "^0.0.6",
     "bufferutil": "^4.0.1",
     "chalk": "^4.1.0",
     "discord.js": "^12.4.1",
@@ -32,6 +33,7 @@
     "node-fetch": "^2.6.6",
     "rcon-client": "^4.2.3",
     "slash": "^3.0.0",
+    "steam-server-status": "github:IanDresarie/steam-server-status",
     "steamid": "^2.0.0",
     "utf-8-validate": "^5.0.2"
   }
