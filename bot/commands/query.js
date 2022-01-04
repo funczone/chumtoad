@@ -50,6 +50,7 @@ module.exports = new CommandBlock({
 
     //let info;
     try {
+        const query = require("../../modules/source-server-query");
         const info = await query.info(ip, port, 2000);
         const players = await query.players(ip, port, 2000);
         query.destroy();

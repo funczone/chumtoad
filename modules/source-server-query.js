@@ -1,9 +1,17 @@
 /**
- * hacky stupid fix to the query command so its functional
+ * a hacky fix to the query command so its functional.
+ * gmod introduced another challenge in a2s_info requests so older source engine query packages don't work correctly, blah blah i dont really know how any of this works
  * based on https://github.com/dsyomichev/source-server-query/pull/5
  */
 const bp = require("bufferpack");
-const client = require("dgram").createSocket("udp4");
+const dgram = require("dgram");
+let client = dgram.createSocket("udp4");
+
+// helper function that detects if the socket is closed
+const isClosed = () => {
+  let sym = Reflect.ownKeys(client).find(key => key.toString() === "Symbol(state symbol)");
+  return client[sym].handle === null;
+}
 
 const send = (buffer, address, port, code, timeout = 1000) => {
   return new Promise((resolve, reject) => {
@@ -12,6 +20,10 @@ const send = (buffer, address, port, code, timeout = 1000) => {
     if (!port || typeof port != "number") return reject(new Error("Missing/Invalid param 'port'"));
     if (!code || typeof code != "string") return reject(new Error("Missing/Invalid param 'code'"));
     if (typeof timeout != "number") return reject(new Error("Invalid Param 'timeout'"));
+
+    if(isClosed()) {
+      client = dgram.createSocket("udp4"); // bad idea? surely not.
+    }
 
     client.send(buffer, 0, buffer.length, port, address, (err, bytes) => {
       if (err) return reject(typeof err == "string" ? new Error(err) : err);
