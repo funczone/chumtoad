@@ -27,6 +27,7 @@
     "filehound": "^1.17.4",
     "fs-extra": "^9.0.1",
     "gamedig": "^2.0.23",
+    "jspack": "^0.0.4",
     "lodash": "^4.17.19",
     "lowdb": "^1.0.0",
     "luxon": "^2.1.1",
@@ -35,6 +36,7 @@
     "slash": "^3.0.0",
     "steam-server-status": "github:IanDresarie/steam-server-status",
     "steamid": "^2.0.0",
-    "utf-8-validate": "^5.0.2"
+    "utf-8-validate": "^5.0.2",
+    "utf8": "^3.0.0"
   }
 }
