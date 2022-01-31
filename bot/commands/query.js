@@ -48,12 +48,12 @@ module.exports = new CommandBlock({
     const vanity = (qi ? qi.vanity : ip) + (port ? `:${port}` : "");
     const embed = new MessageEmbed();
 
-    //let info;
     try {
-        const query = require("../../modules/source-server-query");
         const info = await query.info(ip, port, 2000);
         const players = await query.players(ip, port, 2000);
-        query.destroy();
+        query.close();
+
+        console.log(info);
 
         embed.setTitle(info.name);
         embed.setColor("#43B581")

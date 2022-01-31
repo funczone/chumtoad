@@ -1,214 +1,155 @@
 /**
- * a hacky fix to the query command so its functional.
- * gmod introduced another challenge in a2s_info requests so older source engine query packages don't work correctly, blah blah i dont really know how any of this works
- * based on https://github.com/dsyomichev/source-server-query/pull/5
+ * this is some weird frankenstein copy of a source server query script i found online.
+ * it implements some features that didn't exist in the original, such as utf8 entity parsing and making multiple queries after closing. but do not be confused: this thing sucks
+ * https://github.com/dsyomichev/source-server-query/ < use the official one please god
  */
 const bp = require("bufferpack");
+const jsp = require("jspack").jspack;
+const utf8 = require("utf8");
+
 const dgram = require("dgram");
 let client = dgram.createSocket("udp4");
 
 // helper function that detects if the socket is closed
+// (for some reason you cant query after closure of the socket. so this checks if its close and if it is, create a new socket)
 const isClosed = () => {
   let sym = Reflect.ownKeys(client).find(key => key.toString() === "Symbol(state symbol)");
   return client[sym].handle === null;
 }
 
-const send = (buffer, address, port, code, timeout = 1000) => {
+const send = (request, remote, timeout) => {
   return new Promise((resolve, reject) => {
-    if (!buffer || !buffer instanceof Buffer) return reject(new Error("Missing/Invalid param 'buffer'"));
-    if (!address || typeof address != "string") return reject(new Error("Missing/Invalid param 'address'"));
-    if (!port || typeof port != "number") return reject(new Error("Missing/Invalid param 'port'"));
-    if (!code || typeof code != "string") return reject(new Error("Missing/Invalid param 'code'"));
-    if (typeof timeout != "number") return reject(new Error("Invalid Param 'timeout'"));
-
     if(isClosed()) {
       client = dgram.createSocket("udp4"); // bad idea? surely not.
     }
 
-    client.send(buffer, 0, buffer.length, port, address, (err, bytes) => {
-      if (err) return reject(typeof err == "string" ? new Error(err) : err);
+    const onTimeout = setTimeout(() => {
+      client.removeListener("message", onResponse);
+      return reject(new Error("Request timeout out."));
+    }, timeout);
 
-      let response = (buffer, remote) => {
-        //Any unmatched parameter will return rather than error so that multiple requests can be made at once.
-        if (remote.address != address) return;
-        if (remote.port != port) return;
-        if (buffer.length < 1) return;
-        buffer = buffer.slice("4");
-        if (bp.unpack("<s", buffer)[0] !== code) return;
-        client.removeListener("message", response);
-        clearTimeout(time);
-        return resolve(buffer.slice(1));
-      };
+    const onResponse = (response, rinfo) => {
+      if (rinfo.address != rinfo.address || rinfo.port != rinfo.port) return;
 
-      let time = setTimeout(() => {
-        client.removeListener("message", response);
-        return reject(new Error("Connection timed out."));
-      }, timeout);
+      client.removeListener("message", onResponse);
+      clearTimeout(onTimeout);
+      return resolve(response);
+    };
 
-      client.on("message", response);
-    });
+    client.on("message", onResponse);
+    client.send(request, remote.port, remote.address);
   });
 };
 
-const challenge = async (address, port, code, timeout = 1000, payload = null) => {
-  if (!address || typeof address != "string") return new Error("Missing/Invalid param 'address'");
-  if (!port || typeof port != "number") return new Error("Missing/Invalid param 'port'");
-  if (!code || typeof code != "string") return new Error("Missing/Invalid param 'code'");
-  if (typeof timeout != "number") return new Error("Invalid Param 'timeout'");
+const challenge = async (remote, format, payload, timeout) => {
+  let request = bp.pack(format, payload);
+  const response = await send(request, remote, timeout);
 
-  let buffer = null
-  // check for payload, as INFO challenge requires that, otherwise send without payload
-  if (payload != null && code == "T") {
-    buffer = send(bp.pack("<isSi", [-1, code, "Source Engine Query", -1]), address, port, "A", timeout);
-  } else {
-    buffer = send(bp.pack("<isi", [-1, code, -1]), address, port, "A", timeout);
-  }
-
-  try {
-    buffer = await buffer;
-  } catch (err) {
-    return typeof err == "string" ? new Error(err) : err;
-  }
-  return bp.unpack("<i", buffer)[0];
+  if (bp.unpack("<s", response, 4)[0] === "A") {
+    payload[payload.length - 1] = bp.unpack("<I", response, 5)[0];
+    return await send(bp.pack(format, payload), remote, timeout);
+  } else return response;
 };
 
-const info = async (address, port, timeout = 1000) => {
-  if (!address || typeof address != "string") return new Error("Missing/Invalid param 'address'");
-  if (!port || typeof port != "number") return new Error("Missing/Invalid param 'port'");
-  if (typeof timeout != "number") return new Error("Invalid Param 'timeout'");
+module.exports.info = async (address, port, timeout = 1000) => {
+  const query = await challenge({ address, port }, "<isSI", [-1, "T", "Source Engine Query", -1], timeout);
 
-  let key = challenge(address, port, "T", timeout, "Source Engine Query");
-  try {
-    key = await key;
-  } catch (err) {
-    return typeof err == "string" ? new Error(err) : err;
-  }
+  const format = `<
+    B(protocol)
+    S(name)
+    S(map)
+    S(folder)
+    S(game)
+    h(id)
+    B(players)
+    B(maxplayers)
+    B(bots)
+    c(servertype)
+    c(environment)
+    B(visibility)
+    B(vac)
+    S(version)`;
 
-  let buffer = send(bp.pack("<isSi", [-1, "T", "Source Engine Query", key]), address, port, "I", timeout);
-  try {
-    buffer = await buffer;
-    buffer = await buffer;
-  } catch (err) {
-    return typeof err == "string" ? new Error(err) : err;
-  }
+  const info = bp.unpack(format, query.slice(5));
+  const extra = query.slice(bp.calcLength(format, Object.values(info)) + 5);
 
-  let list = bp.unpack("<bSSSShBBBssBB", buffer);
-  let keys = ["protocol", "name", "map", "folder", "game", "appid", "playersnum", "maxplayers", "botsnum", "servertype", "environment", "visibility", "vac"];
-  let info = {};
-  for (let i = 0; i < list.length; i++) {
-    info[keys[i]] = list[i];
-  }
+  if (extra.length >= 1) {
+    let offset = 1;
+    const edf = bp.unpack("<B", extra)[0];
 
-  buffer = buffer.slice(bp.calcLength("<bSSSShBBBssBB", list));
-  info.version = bp.unpack("<S", buffer)[0];
-  buffer = buffer.slice(bp.calcLength("<S", [info.version]));
-
-  if (buffer.length > 1) {
-    let offset = 0;
-    let EDF = bp.unpack("<b", buffer)[0];
-    offset += 1;
-    if ((EDF & 0x80) !== 0) {
-      info.port = bp.unpack("<h", buffer, offset)[0];
+    if (edf & 0x80) {
+      info.port = bp.unpack("<h", extra, offset)[0];
       offset += 2;
     }
-    if ((EDF & 0x10) !== 0) {
-      info.steamID = bp.unpack("<ii", buffer, offset)[0];
+
+    if (edf & 0x10) {
+      info.steamid = jsp.Unpack("<Q", extra, offset)[0];
       offset += 8;
     }
-    if ((EDF & 0x40) !== 0) {
-      let tvinfo = bp.unpack("<hS", buffer, offset);
-      info["tv-port"] = tvinfo[0];
-      info["tv-name"] = tvinfo[1];
+
+    if (edf & 0x40) {
+      const tvinfo = bp.unpack("<hS", extra, offset);
+      info.tvport = tvinfo[0];
+      info.tvname = utf8.decode(tvinfo[1]);
       offset += bp.calcLength("<hS", tvinfo);
     }
-    if ((EDF & 0x20) !== 0) {
-      info.keywords = bp.unpack("<S", buffer, offset)[0];
+
+    if (edf & 0x20) {
+      info.keywords = bp.unpack("<S", extra, offset)[0].split(",");
       offset += bp.calcLength("<S", info.keywords);
     }
-    if ((EDF & 0x01) !== 0) {
-      info.gameID = bp.unpack("<i", buffer, offset)[0];
+
+    if (edf & 0x01) {
+      info.gameid = jsp.Unpack("<Q", extra, offset)[0];
       offset += 4;
     }
   }
 
+  for(const key in info) {
+    if(typeof info[key] === "string") {
+      info[key] = utf8.decode(info[key]);
+    }
+  }
   return info;
 };
 
-const players = async (address, port, timeout = 1000) => {
-  if (!address || typeof address != "string") return new Error("Missing/Invalid param 'address'");
-  if (!port || typeof port != "number") return new Error("Missing/Invalid param 'port'");
-  if (typeof timeout != "number") return new Error("Invalid Param 'timeout'");
+module.exports.players = async (address, port, timeout = 1000) => {
+  const response = await challenge({ address, port }, "<isI", [-1, "U", -1], timeout);
 
-  let key = challenge(address, port, "U", timeout);
-  try {
-    key = await key;
-  } catch (err) {
-    return typeof err == "string" ? new Error(err) : err;
-  }
+  const count = bp.unpack("<B", response, 5)[0];
+  let offset = 6;
 
-  let buffer = send(bp.pack("<isi", [-1, "U", key]), address, port, "D", timeout);
-  try {
-    buffer = await buffer;
-  } catch (err) {
-    return typeof err == "string" ? new Error(err) : err;
-  }
+  const players = [];
+  const format = "<b(index)S(name)i(score)f(duration)";
 
-  let count = bp.unpack("<B", buffer)[0];
-  let offset = 1;
-  let players = [];
-  let keys = ["index", "name", "score", "duration"];
   for (let i = 0; i < count; i++) {
-    let list = bp.unpack("<bSif", buffer, offset);
-    if (list === undefined) {
-      break;
-    }
-    let player = {};
-    for (let i = 0; i < list.length; i++) {
-      player[keys[i]] = list[i];
-    }
-    offset += bp.calcLength("<bSif", list);
+    const player = bp.unpack(format, response, offset);
+    offset += bp.calcLength(format, Object.values(player));
+
+    player.name = utf8.decode(player.name);
     players.push(player);
   }
 
   return players;
 };
 
-const rules = async (address, port, timeout = 1000) => {
-  if (!address || typeof address != "string") return new Error("Missing/Invalid param 'address'");
-  if (!port || typeof port != "number") return new Error("Missing/Invalid param 'port'");
-  if (typeof timeout != "number") return new Error("Invalid Param 'timeout'");
+module.exports.rules = async (address, port, timeout = 1000) => {
+  const response = await challenge({ address, port }, "<isI", [-1, "V", -1], timeout);
 
-  let key = challenge(address, port, "V", timeout);
-  try {
-    key = await key;
-  } catch (err) {
-    return typeof err == "string" ? new Error(err) : err;
-  }
+  const count = bp.unpack("<h", response, 5)[0];
+  let offset = 7;
 
-  let buffer = send(bp.pack("<isi", [-1, "V", key]), address, port, "E", timeout);
-  try {
-    buffer = await buffer;
-  } catch (err) {
-    return typeof err == "string" ? new Error(err) : err;
-  }
+  const rules = [];
+  const format = "<S(name)S(value)";
 
-  let count = bp.unpack("<h", buffer)[0];
-  let rules = [];
-  let keys = ["name", "value"];
-  let offset = 2;
   for (let i = 0; i < count; i++) {
-    let list = bp.unpack("<SS", buffer, offset);
-    let rule = {};
-    for (let i = 0; i < list.length; i++) {
-      rule[keys[i]] = list[i];
-    }
+    const rule = bp.unpack(format, response, offset);
+
+    offset += bp.calcLength(format, Object.values(rule));
     rules.push(rule);
-    offset += bp.calcLength("<SS", list);
   }
 
   return rules;
 };
 
-const destroy = () => client.close();
-
-module.exports = { info, players, rules, destroy };
+module.exports.close = () => client.close();
