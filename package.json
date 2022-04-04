@@ -29,7 +29,7 @@
     "lodash": "^4.17.19",
     "lowdb": "^1.0.0",
     "luxon": "^2.1.1",
-    "node-fetch": "^2.6.6",
+    "node-fetch": "^2.6.7",
     "rcon-client": "^4.2.3",
     "slash": "^3.0.0",
     "source-server-query": "^2.1.4",
