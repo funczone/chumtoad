@@ -1,17 +1,12 @@
 const CommandBlock = require("../../modules/CommandBlock");
 
 module.exports = new CommandBlock({
-  identity: ["quit", "exit", "shutdown", "logout", "restart"],
-  summary: "Log out & shut down",
-  description: "Log out followed by process exit. Bot may be auto restarted externally.",
-  usage: null,
-  scope: ["dm", "text", "news"],
-  nsfw: false,
-  locked: "hosts",
-  clientPermissions: ["VIEW_CHANNEL", "SEND_MESSAGES", "USE_EXTERNAL_EMOJIS", "ADD_REACTIONS"],
-  userPermissions: null,
+    identity: ["quit", "exit", "shutdown", "logout", "restart", "die", "perish"],
+    description: "Logs the bot out, and exits the process. Bot may be auto restarted externally.",
+    locked: "hosts",
+    clientPermissions: ["USE_EXTERNAL_EMOJIS", "ADD_REACTIONS"]
 }, async function(client, message, content, args) {
-  await message.react(client.config.get("metadata.reactions.positive").value());
-  client.destroy();
-  process.exit(0);
+    await message.react(client.reactions.positive.id);
+    client.destroy();
+    process.exit(0);
 });

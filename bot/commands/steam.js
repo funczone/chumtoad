@@ -11,14 +11,11 @@ module.exports = [
         description: "Gets someones Steam profile information.",
         usage: "[SteamID or custom URL]"
     }, async function(client, message, content, [id]) {
-        const positive = client.config.get("metadata.reactions.positive").value();
-        const negative = client.config.get("metadata.reactions.negative").value();
-
         const apikey = client.config.get("commands.steam.apikey").value();
         if(!apikey) {
-            return message.channel.send(`<:_:${negative}> You need to configure an API key.`);
+            return message.reply(`${client.reactions.negative.emote}> You need to configure an API key.`);
         }
-        if(!id) return message.channel.send(`<:_:${negative}> You must pass in a SteamID to get a users information.`);
+        if(!id) return message.reply(`${client.reactions.negative.emote} You must pass in a SteamID to get a users information.`);
         
         let steamID;
         try {
@@ -28,12 +25,12 @@ module.exports = [
             const resp = await fetch(`https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/?key=${apikey}&vanityurl=${id}`);
             const json = await resp.json();
             if(!json.response || json.response.success !== 1) {
-                return message.channel.send(`<:_:${negative}> This is not a valid SteamID or custom URL!`);
+                return message.reply(`${client.reactions.negative.emote} This is not a valid SteamID or custom URL!`);
             }
             steamID = new SteamID(json.response.steamid);
         }
 
-        if(!steamID.isValidIndividual()) return message.channel.send(`<:_:${negative}> This SteamID does not correspond to an individuals account!`);
+        if(!steamID.isValidIndividual()) return message.reply(`${client.reactions.negative.emote} This SteamID does not correspond to an individuals account!`);
 
         const resp = await fetch(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apikey}&steamids=${steamID.getSteamID64()}`);
         const json = await resp.json();
@@ -54,11 +51,11 @@ module.exports = [
         
         // private profile
         if(profile.communityvisibilitystate !== 3) {
-            embed.setFooter("This profile is private.");
+            embed.setFooter({ text: "This profile is private." });
 
         // no community profile
         } else if(!profile.profilestate) {
-            embed.setFooter("This user has not set up their Steam Community profile.");
+            embed.setFooter({ text: "This user has not set up their Steam Community profile." });
 
         // public profile
         } else if(profile.communityvisibilitystate === 3) {
@@ -89,7 +86,7 @@ module.exports = [
             if(profile.personastate == 0 && profile.lastlogoff) {
                 description += `Last online: ${DateTime.fromMillis(profile.lastlogoff * 1000).toLocaleString(DateTime.DATETIME_MED)}\n`;
             }
-            embed.setFooter("This profile is public.");
+            embed.setFooter({ text: "This profile is public." });
         }
 
         // calculate steam ids
@@ -103,6 +100,6 @@ module.exports = [
         embed.setDescription(description);
 
         // launch
-        return message.channel.send(embed);
+        return message.reply({ embeds: [embed], allowedMentions: { repliedUser: false } });
     }),
 ];

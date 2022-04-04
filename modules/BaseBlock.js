@@ -5,14 +5,14 @@ const Base = require("./Base");
  * @abstract
  */
 class BaseBlock extends Base {
-  constructor() {
-    super();
+    constructor() {
+        super();
 
-    /**
-     * @type {?string}
-     */
-    this.filePath = null;
-  }
+        /**
+         * @type {?string}
+         */
+        this.filePath = null;
+    }
 }
 
 module.exports = BaseBlock;

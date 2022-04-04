@@ -11,23 +11,23 @@ const lua = {
 module.exports = new CommandBlock({
     identity: "lua",
     description: "Evaluates lua code.",
-    scope: ["dm", "text", "news"],
     locked: ["hosts", "lua"],
-    usage: "[lua code]",
-    clientPermissions: ["VIEW_CHANNEL", "SEND_MESSAGES"],
+    usage: "[lua]",
 }, function(client, message, content, args) {
-    const positive = client.config.get("metadata.reactions.positive").value();
-    const negative = client.config.get("metadata.reactions.negative").value();
-
     if(os.platform() == "win32") {
-        return message.channel.send(`<:_:${negative}> The lua command is not supported on windows yet.`);
+        return message.reply(`${client.reactions.negative.emote} The lua command is not yet supported on Windows systems yet.`);
     }
 
     const shell = spawn(lua[os.platform()]);
     [shell.stdout, shell.stderr].forEach((e) => {
         e.on("data", (d) => {
             d = d.toString(); // buffer shits
-            message.channel.send(`\`\`\`lua\n${d}\`\`\``);
+            if(e === shell.stdout) {
+                log.debug(`Lua eval from ${message.author.tag} resulted in:`, d);
+            } else if(e === shell.stderr) {
+                log.error(`Lua eval from ${message.author.tag} caused an error:`, d);
+            }
+            message.reply({ content: `\`\`\`lua\n${d}\`\`\``, allowedMentions: { parse: [] } });
         })
     });
 

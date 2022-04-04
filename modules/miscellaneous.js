@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 /**
  * This module contains a bunch of exported functions. Some are useful in general, others are for convenience and code clarity, as it's often simpler for logic to be a reusable function rather than complicated alternatives or implementing the logic multiple times where needed to achieve the same result.
  * @module miscellaneous
@@ -29,8 +30,8 @@ module.exports.sleep = promisify(setTimeout);
  * lovely(car, 4, true); // returns string wrapped in discord codeBlock, uses 4 spaces of whitespace
  */
 module.exports.lovely = function(object, whitespace = 2, codeBlock = false) {
-  const formatted = JSON.stringify(object, null, whitespace);
-  return codeBlock ? `\`\`\`json\n${formatted}\n\`\`\`` : formatted;
+    const formatted = JSON.stringify(object, null, whitespace);
+    return codeBlock ? `\`\`\`json\n${formatted}\n\`\`\`` : formatted;
 };
 
 /**
@@ -39,9 +40,9 @@ module.exports.lovely = function(object, whitespace = 2, codeBlock = false) {
  * @returns {boolean} Returns `true` if value is a non-empty array that only contains strings, else `false`
  */
 module.exports.isArrayOfStrings = function(value) {
-  if (!isArray(value)) return false;
-  if (!value.length) return false;
-  return !value.some(element => !isString(element));
+    if (!isArray(value)) return false;
+    if (!value.length) return false;
+    return !value.some(element => !isString(element));
 };
 
 /**
@@ -50,11 +51,11 @@ module.exports.isArrayOfStrings = function(value) {
  * @returns {boolean} Returns `true` if value is resolvable as a permission, else `false`
  */
 module.exports.isPermissionResolvable = function(value) {
-  if (isString(value) || isArray(value) || isFinite(value) || value instanceof Permissions) {
-    return true;
-  } else {
-    return false;
-  }
+    if (isString(value) || isArray(value) || isFinite(value) || value instanceof Permissions) {
+        return true;
+    } else {
+        return false;
+    }
 };
 
 /**
@@ -64,11 +65,11 @@ module.exports.isPermissionResolvable = function(value) {
  * @param {...*} values
  */
 module.exports.collectionArrayPush = function(collection, key, ...values) {
-  if (collection.has(key)) {
-    collection.set(key, collection.get(key).concat([...values]));
-  } else {
-    collection.set(key, [...values]);
-  }
+    if (collection.has(key)) {
+        collection.set(key, collection.get(key).concat([...values]));
+    } else {
+        collection.set(key, [...values]);
+    }
 };
 
 /**
@@ -78,16 +79,16 @@ module.exports.collectionArrayPush = function(collection, key, ...values) {
  * @param {...*} values
  */
 module.exports.collectionArrayFilter = function(collection, key, ...values) {
-  if (!values.length) return;
-  if (collection.has(key)) {
-    const data = collection.get(key);
-    if (!isArray(data)) return;
-    if (data.length === 1 && values.includes(data[0])) {
-      collection.delete(key);
-    } else {
-      collection.set(key, data.filter(element => !values.includes(element)));
+    if (!values.length) return;
+    if (collection.has(key)) {
+        const data = collection.get(key);
+        if (!isArray(data)) return;
+        if (data.length === 1 && values.includes(data[0])) {
+            collection.delete(key);
+        } else {
+            collection.set(key, data.filter(element => !values.includes(element)));
+        }
     }
-  }
 };
 
 /**
@@ -106,13 +107,13 @@ module.exports.collectionArrayFilter = function(collection, key, ...values) {
  * @param {...*} args
  */
 module.exports.forAny = function(callback, value, ...params) {
-  if (isArray(value)) {
-    for (const element of value) {
-      callback(element, ...params);
+    if (isArray(value)) {
+        for (const element of value) {
+            callback(element, ...params);
+        }
+    } else {
+        callback(value, ...params);
     }
-  } else {
-    callback(value, ...params);
-  }
 };
 
 /**
@@ -121,8 +122,17 @@ module.exports.forAny = function(callback, value, ...params) {
  * @returns {boolean} Returns `true` if value is a string with only numeric characters, else `false`
  */
 module.exports.isNumeric = function(value) {
-  if (!value || !isString(value) || !value.length) return false;
-  return /^\d+$/.test(value);
+    if (!value || !isString(value) || !value.length) return false;
+    return /^\d+$/.test(value);
+};
+
+/**
+ * Generates a random hexadecimal color - padded with zeroes.
+ * @returns {String}
+ */
+module.exports.randomColor = function(w = 6) {
+    const col = Math.floor(Math.random() * ((256 ** 3) - 1)).toString(16);
+    return new Array(w + 1 - (col + "").length).join("0") + col;
 };
 
 /**
@@ -131,4 +141,104 @@ module.exports.isNumeric = function(value) {
  * @param {string} placeholder 
  * @returns {string} The value recieved.
  */
- module.exports.gitinfo = (placeholder) => execSync(`git show -s --format=${placeholder} HEAD`).toString().trim();
+module.exports.gitinfo = (placeholder) => execSync(`git show -s --format=${placeholder} HEAD`).toString().trim();
+
+/**
+ * Weighted random generation. Courtesy of https://stackoverflow.com/a/1761646.
+ * @param {[*]} arr The values to be randomly chosen from.
+ * @param {Object} weight An object of weights; higher values correspond to a higher likelyhood of being returned.
+ * @returns {*} The value that was generated.
+ */
+module.exports.weightedRandom = (arr, weight) => {
+    // 1) Sum all the weights.
+    // 2) Get a random value; 0 >= x > sum.
+    // 3) Subtract until we can no longer.
+    if (!arr || !weight) throw new Error("Missing an argument");
+    let sum = 0;
+    for (const val of arr) {
+        sum += weight[val] || 0;
+    }
+    let rand = Math.floor(Math.random() * sum);
+    for (const val of arr) {
+        if (rand < weight[val]) return val;
+        rand -= weight[val] || 0;
+    }
+    throw new Error("This should never happen. Prepare to die.");
+}
+
+const entities = {
+    "amp":    "&",
+    "lt":     "<",
+    "gt":     ">",
+    "nbsp":   "\u00A0",
+    "quot":   "\"",
+    "apos":   "'",
+    "cent":   "¢",
+    "pound":  "£",
+    "yen":    "¥",
+    "euro":   "€",
+    "copy":   "©",
+    "reg":    "®",
+    "trade":  "™",
+    "hellip": "…",
+    "mdash":  "—",
+    "bull":   "•",
+    "ldquo":  "“",
+    "rdquo":  "”",
+    "lsquo":  "‘",
+    "rsquo":  "’",
+    "larr":   "←",
+    "rarr":   "→",
+    "darr":   "↓",
+    "uarr":   "↑",
+}
+
+/**
+ * Takes an input, and unescapes the HTML entities inside.
+ * Handles certain named entities (only some, see above) and codepoint entities. 
+ * @param {string} input 
+ * @returns {string}
+ */
+module.exports.unescapeHTML = (input = "") => {
+    const ex = /&[A-Za-z0-9#]+;/;
+    while(ex.test(input)) {
+        const res = input.match(ex);
+        let ent = res[0];
+        if(ent[1] == "#") {
+            let index = 2;
+            if(ent[2] == "x") index++;
+            const codepoint = ent.substr(index, ent.length - (index + 1));
+            ent = String.fromCharCode(codepoint);
+        } else {
+            const code = ent.substr(1, ent.length - 2);
+            if(code in entities) {
+                ent = entities[code];
+            } else {
+                ent = `&${code};`; // Visually similar but distinct from the above regex.
+            }
+        }
+        input = input.replace(res[0], ent);
+    }
+    return input;
+}
+
+/**
+ * A collection of user agents.
+ * Source: https://techblog.willshouse.com/2012/01/03/most-common-user-agents/ (updated March 26th, 2022)
+ */
+module.exports.useragents = {
+    bear: `bear/${this.gitinfo("%h")} (by mechabubba)`,
+    random: [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:98.0) Gecko/20100101 Firefox/98.0",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.51 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:97.0) Gecko/20100101 Firefox/97.0",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.74 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36",
+        "Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.109 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.3 Safari/605.1.15",
+        "Mozilla/5.0 (X11; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0"
+    ]
+}

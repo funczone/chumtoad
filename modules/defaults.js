@@ -33,44 +33,44 @@
  * @property {EmojiIdentifierResolvable} metadata.reactions.cooldown - Emoji representing something involving time, a cool down, a delay, a rate limit
  */
 const defaultConfig = {
-  "client": {
-    "token": null,
-  },
-  "starboard": {
-    "enabled": false,
-    "guild": null,
-    "channel": null,
-  },
-  "commands": {
-    "directory": "./bot/commands/",
-    "scope": ["dm", "text", "news"],
-    "prefix": null,
-    "mentions": true,
-    "channellogging": {
-      "enabled": false,
-      "guild": null,
-      "channel": null,
-      "color": "#141414"
+    "client": {
+        "token": null,
     },
-    "rcon": {
-      "ip": null,
-      "pass": null
+    "starboard": {
+        "enabled": false,
+        "guild": null,
+        "channel": null,
+    },
+    "commands": {
+        "directory": "./bot/commands/",
+        "scope": ["DM", "GUILD_TEXT", "GUILD_NEWS"],      
+        "prefix": null,
+        "mentions": true,
+        "channellogging": {
+            "enabled": false,
+            "guild": null,
+            "channel": null,
+            "color": "#141414"
+        },
+        "rcon": {
+            "ip": null,
+            "pass": null
+        }
+    },
+    "events": {
+        "directory": "./bot/listeners/",
+    },
+    "metadata": {
+        "color": "#2F3136",
+        "twitch": "bobross",
+        "reactions": {
+            "positive": "✅",
+            "negative": "❎",
+            "inquiry": "❔",
+            "alert": "❕",
+            "cooldown": "⏳",
+        },
     }
-  },
-  "events": {
-    "directory": "./bot/listeners/",
-  },
-  "metadata": {
-    "color": "#2F3136",
-    "twitch": "bobross",
-    "reactions": {
-      "positive": "✅",
-      "negative": "❎",
-      "inquiry": "❔",
-      "alert": "❕",
-      "cooldown": "⏳",
-    },
-  }
 };
 
 /**
@@ -87,18 +87,18 @@ const defaultConfig = {
  * @property {Object} local - Local data about the bot.
  */
 const defaultStorage = {
-  "guilds": {
-    "blocked": null,
-    "allowed": null,
-  },
-  "users": {
-    "hosts": null,
-    "trusted": null,
-    "blocked": null,
-    "allowed": null,
-  },
-  "local": {
-  }
+    "guilds": {
+        "blocked": null,
+        "allowed": null,
+    },
+    "users": {
+        "hosts": null,
+        "trusted": null,
+        "blocked": null,
+        "allowed": null,
+    },
+    "local": {
+    }
 };
 
 module.exports = { "defaultConfig": defaultConfig, "defaultStorage": defaultStorage };

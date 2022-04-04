@@ -12,15 +12,15 @@ const _ = require("lodash");
  * Intended as a simple way for functions to provide their caller with data about their result
  */
 class Response {
-  /**
-   * @param {ResponseData} data
-   */
-  constructor(data) {
-    this.message = _.has(data, "message") && !_.isNil(data.message) ? data.message : "No Message Provided";
-    this.success = _.has(data, "success") && !_.isNil(data.success) ? data.success : true;
-    this.error = _.has(data, "error") && !_.isNil(data.error) && data.error instanceof Error ? data.error : null;
-    this.value = _.has(data, "value") && !_.isNil(data.value) ? data.value : null;
-  }
+    /**
+     * @param {ResponseData} data
+     */
+    constructor(data) {
+        this.message = _.has(data, "message") && !_.isNil(data.message) ? data.message : "No Message Provided";
+        this.success = _.has(data, "success") && !_.isNil(data.success) ? data.success : true;
+        this.error = _.has(data, "error") && !_.isNil(data.error) && data.error instanceof Error ? data.error : null;
+        this.value = _.has(data, "value") && !_.isNil(data.value) ? data.value : null;
+    }
 }
 
 module.exports = Response;
