@@ -7,13 +7,13 @@ const { countries } = require("../../data/countries-states-cities.min.json");
 
 module.exports = [
     new CommandBlock({
-        identity: ["steam", "steamid"],
+        names: ["steam", "steamid"],
         description: "Gets someones Steam profile information.",
         usage: "[SteamID or custom URL]"
     }, async function(client, message, content, [id]) {
-        const apikey = client.config.get("commands.steam.apikey").value();
+        const apikey = client.config.get("auth.steam.apikey").value();
         if(!apikey) {
-            return message.reply(`${client.reactions.negative.emote}> You need to configure an API key.`);
+            return message.reply(`${client.reactions.negative.emote} You need to configure an API key.`);
         }
         if(!id) return message.reply(`${client.reactions.negative.emote} You must pass in a SteamID to get a users information.`);
         

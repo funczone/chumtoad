@@ -2,7 +2,6 @@ const { Collection } = require("discord.js");
 const BaseConstruct = require("./BaseConstruct");
 const ListenerBlock = require("./ListenerBlock");
 const { collectionArrayPush, collectionArrayFilter } = require("./miscellaneous");
-const log = require("./log");
 
 /**
  * Event framework
@@ -52,12 +51,13 @@ class EventConstruct extends BaseConstruct {
     /**
      * @param {ListenerBlock} block
      * @param {?string} [filePath]
+     * @param {?string} [trimmedPath]
      */
-    load(block, filePath) {
+    load(block, filePath = null, trimmedPath = null) {
         // validation
         if (block instanceof ListenerBlock === false) return;
         // parent
-        super.load(block, filePath);
+        super.load(block, filePath, trimmedPath);
         // bind correct this value & prefix the emitter as the first parameter
         block.run = block.run.bind(block, this.emitter);
         // .once() or .on()
@@ -69,8 +69,6 @@ class EventConstruct extends BaseConstruct {
         // collections
         collectionArrayPush(this.idsByEvent, block.event, block.id);
         collectionArrayPush(this.pathsByEvent, block.event, block.filePath);
-        // log
-        log.trace("Loaded a listener", block);
     }
 
     /**
@@ -88,8 +86,6 @@ class EventConstruct extends BaseConstruct {
         // collections
         collectionArrayFilter(this.pathsByEvent, block.event, block.filePath);
         collectionArrayFilter(this.idsByEvent, block.event, block.id);
-        // log
-        log.trace("Unloaded a listener", block);
     }
 }
 

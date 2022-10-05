@@ -117,16 +117,6 @@ module.exports.forAny = function(callback, value, ...params) {
 };
 
 /**
- * Checks whether value is a string that consists of only numeric characters
- * @param {*} value
- * @returns {boolean} Returns `true` if value is a string with only numeric characters, else `false`
- */
-module.exports.isNumeric = function(value) {
-    if (!value || !isString(value) || !value.length) return false;
-    return /^\d+$/.test(value);
-};
-
-/**
  * Generates a random hexadecimal color - padded with zeroes.
  * @returns {String}
  */
@@ -221,6 +211,32 @@ module.exports.unescapeHTML = (input = "") => {
     }
     return input;
 }
+
+/**
+ * "Humanizes" a millisecond duration.
+ * Luxons Duration class doesn't format uptimes very well (or at all?) above 24 hours, so this function does that.
+ * @param {number} millis - The amount of milliseconds to convert to a string duration.
+ * @returns {string}
+ */
+module.exports.humanizeDuration = (millis) => {
+    const periods = [
+        ["year",   60 * 60 * 24 * 365 * 1000],
+        ["month",  60 * 60 * 24 * 30 * 1000],
+        ["day",    60 * 60 * 24 * 1000],
+        ["hour",   60 * 60 * 1000],
+        ["minute", 60 * 1000],
+        ["second", 1000]
+    ];
+    const strings = []
+    for(const period of periods) {
+        if(millis > period[1]) {
+            let value = Math.floor(millis / period[1])
+            strings.push(`${value} ${period[0]}${value >= 1 ? "s" : ""}`);
+            millis = millis - (value * period[1])
+        }
+    }
+    return strings.join(", ");
+};
 
 /**
  * A collection of user agents.

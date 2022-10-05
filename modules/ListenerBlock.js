@@ -1,5 +1,5 @@
 const BaseBlock = require("./BaseBlock");
-const _ = require("lodash");
+const { has, isPlainObject, isFunction, isString, isNil, isBoolean } = require("lodash");
 
 /**
  * @typedef {Object} ListenerData
@@ -10,9 +10,8 @@ const _ = require("lodash");
 /**
  * Callback function called when an event is emitted, as described here: https://nodejs.org/dist/latest/docs/api/events.html#events_event
  * @callback listener
- * @param {EventEmitter} emitter - Bound as first parameter by EventConstruct.load()
- * @param {...*} - Provided by the event being emitted
- * @todo Should the bound parameter be included?
+ * @param {EventEmitter} emitter Bound as first parameter by EventConstruct.load()
+ * @param {...*} parameters Provided by the event being emitted
  * @todo Is there a way to specify that this callback's this value is an instance of ListenerBlock?
  */
 
@@ -48,6 +47,7 @@ class ListenerBlock extends BaseBlock {
         /**
          * Callback function called when the event named by the ListenerBlock.event property is emitted
          * @type {listener}
+         * @abstract
          */
         this.run = run;
     }
@@ -59,10 +59,10 @@ class ListenerBlock extends BaseBlock {
      * @todo May be worth looking into schema based validation
      */
     static validateParameters(data, run) {
-        if (!_.isPlainObject(data)) throw new TypeError("Listener data parameter must be an Object.");
-        if (!_.isFunction(run)) throw new TypeError("Listener run parameter must be a function.");
-        if (!_.isString(data.event)) throw new TypeError("Listener data.event must be a string.");
-        if (_.has(data, "once") && !_.isNil(data.once)) if (!_.isBoolean(data.once)) throw new TypeError("Listener data.once name must be a boolean if included.");
+        if (!isPlainObject(data)) throw new TypeError("Listener data parameter must be an Object.");
+        if (!isFunction(run)) throw new TypeError("Listener run parameter must be a function.");
+        if (!isString(data.event)) throw new TypeError("Listener data.event must be a string.");
+        if (has(data, "once") && !isNil(data.once)) if (!isBoolean(data.once)) throw new TypeError("Listener data.once name must be a boolean if included.");
     }
 
 }

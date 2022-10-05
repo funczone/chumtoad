@@ -1,5 +1,7 @@
 const log = require("./modules/log");
-const { version } = require("discord.js");
+const package = require("./package.json");
+const djsver = require("discord.js").version;
+const semver = require("semver");
 
 // node.js process event listeners (if you can improve these, please contribute!)
 // https://nodejs.org/api/process.html (list is under Process Events)
@@ -13,15 +15,15 @@ process.on("warning", (warning) => log.warn(warning));
 process.on("exit", (code) => code === 0 ? log.info("Exiting peacefully") : log.warn("Exiting abnormally with code:", code));
 
 // node.js and discord.js version checks
-if (Number(process.version.slice(1).split(".")[0]) < 16) { // version < minVer
-    log.fatal(`node.js v16+ is required, currently ${process.version}`);
+if(!semver.satisfies(process.version, package.engines.node)) {
+    log.fatal(`node.js v${semver.clean(package.engines.node)}+ is required, currently ${process.version}`);
     process.exit(1);
-} else if (Number(version.split(".")[0]) < 13) { // version < minVer
-    log.fatal(`discord.js v13+ is required, currently v${version}`);
+} else if(!semver.satisfies(djsver, ">=13")) {
+    log.fatal(`discord.js v13+ is required, currently v${djsver}`);
     process.exit(1);
 } else {
-    log.info(`Starting up running node.js ${process.version} and discord.js v${version}`);
+    log.info(`Starting ${package.name} v${package.version} using node.js ${process.version} and discord.js v${djsver} on ${process.platform}`);
 }
 
-// Work in progress
+// rock n' roll
 require("./bot");

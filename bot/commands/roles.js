@@ -43,7 +43,7 @@ const snakeCase = str => str.replace(/\W+/g, " ").split(/ |\B(?=[A-Z])/).map(wor
 
 module.exports = [
     new CommandBlock({
-        identity: ["role"],
+        names: ["role"],
         summary: "Allows you to join or leave a role.\nUsers and roles can also be disallowed and allowed to roles. If you're disallowed from a role, you cannot join it unless you're *specifically* allowed to use it via user ID or role ID.\nTo see roles you can actually join, perform the \`roles\` command.",
         usage: "[join (role name)] [leave (role name)] [restrictions (role name)]",
         funconly: true
@@ -308,7 +308,7 @@ module.exports = [
         }
     }),
     new CommandBlock({
-        identity: ["roles", "listroles"],
+        names: ["roles", "listroles"],
         description: "Lists the roles you are able to join.",
         funconly: true
     }, async function(client, message, content, args) {

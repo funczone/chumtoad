@@ -3,14 +3,14 @@ const { Rcon } = require("rcon-client");
 
 module.exports = [
     new CommandBlock({
-        identity: ["rcon"],
+        names: ["rcon"],
         description: "Creates an rcon query to the func.zone TTT server.\n\nConfigure the rcon connection by evaluating the following;```js\nclient.config.set(\"commands.rcon.ip\", \"< your ip address >\").write();\nclient.config.set(\"commands.rcon.pass\", \"< your rcon password >\").write();\nclient.config.set(\"commands.rcon.port\", \"< your rcon port >\").write();```", // @todo this is so lazy
         usage: "[rcon command]",
         locked: ["hosts", "staff"]
     }, async function(client, message, content, args) {
-        const ip = client.config.get("commands.rcon.ip").value();
-        const pass = client.config.get("commands.rcon.pass").value();
-        const port = client.config.get("commands.rcon.port").value();
+        const ip = client.config.get("auth.rcon.ip").value();
+        const pass = client.config.get("auth.rcon.pass").value();
+        const port = client.config.get("auth.rcon.port").value();
         if(!ip || !pass || !port) {
             return message.reply(`${client.reactions.negative.emote} You need to configure the rcon IP, password, and port.`);
         }

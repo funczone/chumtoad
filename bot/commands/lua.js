@@ -9,7 +9,7 @@ const lua = {
 }
 
 module.exports = new CommandBlock({
-    identity: "lua",
+    names: ["lua"],
     description: "Evaluates lua code.",
     locked: ["hosts", "lua"],
     usage: "[lua]",

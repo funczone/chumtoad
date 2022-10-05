@@ -1,12 +1,9 @@
 /* eslint-disable no-unused-vars */
 const Client = require("./modules/Client");
-const Handler = require("./modules/Handler");
 const log = require("./modules/log");
 const fse = require("fs-extra");
 const { Intents, SnowflakeUtil } = require("discord.js");
-
-// Discord token regex
-const tokenRegex = RegExp(/^[\w]{24}\.[\w-]{6}\.[\w-]{27}$/);
+const { token } = require("./modules/regexes");
 
 // Instantiate client
 const client = new Client({
@@ -15,40 +12,39 @@ const client = new Client({
 
 // Token validation (config)
 if (client.config.get("client.token").value() !== null) {
-    if (tokenRegex.test(client.config.get("client.token").value())) {
-        log.info("Token stored at client.token successfully matched token pattern");
+    if (token.exec(client.config.get("client.token").value()).groups.basicToken) {
+        log.info("Token stored in the config successfully matched token regex, will attempt to login");
     } else {
         const id = SnowflakeUtil.generate();
-        log.warn("Token stored at config.bot.token didn't match pattern!");
-        fse.ensureFileSync("./data/config.json");
-        fse.copySync("./data/config.json", `./data/config.backup.${id}.json`);
+        log.warn("Token stored in the config didn't match token regex, won't try to use it");
+        fse.ensureFileSync(client.dbPath);
+        fse.copySync(client.dbPath, `./data/config.backup.${id}.json`);
         client.config.set("client.token", null).write();
-        log.warn(`client.token in config.json reset to null and invalid token backed up to config.backup.${id}.json`);
+        log.warn(`The token in the config has been reset to null and a backup of the config with the invalid token has been created at ./data/config.backup.${id}.json`);
     }
 }
 
-// Token parsing (command line arguments)
+// Token validation (command line argument)
 const argv = process.argv.slice(2);
-if (argv.length !== 0) {
-    if (argv.length > 1) log.warn("Regarding command line arguments, the bot only supports using the first argument to pass in a token");
-    if (tokenRegex.test(argv[0])) {
-        log.info("Command line argument matched token pattern, will attempt to login with it");
-        client.cookies["token"] = argv[0];
+if (argv.length) {
+    if (argv.length > 1) log.warn("Regarding command line arguments, only using the first argument to pass in a token is supported. All further arguments are ignored.");
+    if (token.exec(argv[0]).groups.basicToken) {
+        log.info("Command line argument matched token regex, will attempt to login");
+        client.cookies.set("token", argv[0]);
     } else {
-        log.warn("Command line argument didn't match token pattern, the bot won't try to use it");
+        log.warn("Command line argument didn't match token regex, won't try to use it");
     }
 }
 
 // Initialize bot
 const init = async function() {
-    log.debug("init");
-    const commandLoadResult = await Handler.requireDirectory(client.commands, client.config.get("commands.directory").value());
-    const eventLoadResult = await Handler.requireDirectory(client.events, client.config.get("events.directory").value());
+    const commandLoadResult = await client.handler.requireDirectory(client.commands, client.config.get("commands.directory").value(), true);
+    const eventLoadResult = await client.handler.requireDirectory(client.events, client.config.get("events.directory").value(), true);
     log.info(commandLoadResult.message);
     log.info(eventLoadResult.message);
     // Ground control to major tom
     if (client.cookies["token"] || client.config.get("client.token").value() !== null) {
-        client.login(client.cookies["token"] ? client.cookies["token"] : client.config.get("client.token").value());
+        client.login(client.cookies["token"] || client.config.get("client.token").value());
     } else {
         log.warn("No token available to login with! Please set one in config.json or pass one in as an argument");
         process.exit(0);

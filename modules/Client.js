@@ -1,5 +1,7 @@
+const GuildManager = require("./GuildManager");
 const CommandConstruct = require("./CommandConstruct");
 const EventConstruct = require("./EventConstruct");
+const Handler = require("./Handler");
 const log = require("./log");
 
 const Discord = require("discord.js");
@@ -8,9 +10,7 @@ const FileSync = require("lowdb/adapters/FileSync");
 const fse = require("fs-extra");
 const path = require("path");
 
-const configPath = path.join(__dirname, "../data/config.json");
-const storagePath = path.join(__dirname, "../data/storage.json");
-const { defaultConfig, defaultStorage } = require("./defaults");
+const { defaultConfig, defaultStorage } = require("./defaultData");
 
 /**
  * Extension of the discord.js client
@@ -18,32 +18,50 @@ const { defaultConfig, defaultStorage } = require("./defaults");
  */
 class Client extends Discord.Client {
     /**
-     * @param {ClientOptions} options - Options for the client
+     * @param {ClientOptions} options Options for the client
      */
     constructor(options) {
         super(options);
 
-        // Log to the console if config.json will be created
-        if (fse.pathExistsSync(configPath) !== true) {
-            log.info("A default config.json file will be generated in ./data/");
-        }
+        /**
+         * Replace this.guilds with our extended GuildManager
+         */
+        this.guilds = new GuildManager(this);
+
+        /**
+         * Full file path used for the configuration file
+         * @todo this needs to be removed probably in favor of the defaultConfig and defaultStorage vars above
+         * @type {string}
+         * @readonly
+         */
+        this.configPath = path.join(__dirname, "../data/config.json");
+        this.storagePath = path.join(__dirname, "../data/storage.json");
+
+        // Log to the console if the config will be created
+        if (!fse.pathExistsSync(this.configPath)) log.info(`A default config file will be generated at ./data/config.json`);
+
         /**
          * Config database via lowdb
          */
-        this.config = low(new FileSync(configPath));
+        this.config = low(new FileSync(this.configPath));
         this.config.defaultsDeep(defaultConfig).write();
 
         /**
          * Storage database via lowdb
          */
-        this.storage = low(new FileSync(storagePath));
-        this.storage.defaultsDeep(defaultStorage).write()
+        this.storage = low(new FileSync(this.storagePath));
+        this.storage.defaultsDeep(defaultStorage).write() 
 
         /**
-         * Arbitrary Collection
-         * @type {Discord.Collection<*, *>}
+         * Arbitrary object for temporary data.
          */
         this.cookies = {};
+
+        /**
+         * Handler framework
+         * @type {Handler}
+         */
+        this.handler = new Handler(this);
 
         /**
          * Commands

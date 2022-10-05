@@ -1,25 +1,51 @@
-node_modules
-jspm_packages
-pids
-report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+# npm, pnpm, jspm
+# for adding yarn see https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
+node_modules/
+.node_modules/
+jspm_packages/
 .npm
-.eslintcache
+npm-debug.log*
+.pnpm-debug.log*
+
+# node
 .node_repl_history
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# eslint
+.eslintcache
+
+# typescript
+*.tsbuildinfo
+
+# runtime data
+pids
 *.pid
 *.seed
 *.pid.lock
-*.log
-*.vscode
+
+# operating systems
+.DS_STORE
+Thumbs.db
+
+# editors
+.vscode/
+.vscode-test/
+*.iml
+.idea
+
+# project
+*.log*
 *.env
 *.env.test
-*.tgz
-*.zip
-*.7z
-*.tar
 **/data/*
-!**/data/countries-states-cities.min.json
 !**/data/.gitkeep
 **/temp/*
 !**/temp/.gitkeep
 **/logs/*
 !**/logs/.gitkeep
+
+# bot stuff
+bot/commands/sv.js
+bot/listeners/starboard.js
+modules/Starboard.js
+modules/JSONManager.js

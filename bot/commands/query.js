@@ -8,9 +8,7 @@ const preview = {
     extension: "jpg"
 };
 
-const autofill = {
-    "ttt": { vanity: "ttt.func.zone", ip: "74.91.124.160", port: 27015, game: "garrysmod" },
-}
+const autofill = {};
 
 let description = "Querys source engine servers.\`\`\`markdown\n# AUTOFILL OPTIONS\nUse one of the strings in turquoise to quickly query one of our servers.\n";
 for(const key in autofill) {
@@ -22,7 +20,7 @@ description += "```";
 const ipv4 = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$/; // https://stackoverflow.com/a/36760050/17188891
 
 module.exports = new CommandBlock({
-    identity: ["query", "q", "srcds"],
+    names: ["query", "q", "srcds"],
     description: description,
     usage: "ip:port",
     locked: "hosts",

@@ -7,11 +7,11 @@ const { sleep } = require("../../modules/miscellaneous");
 const save = "\uD83D\uDCBE"; // The reaction used to indicate saving the output of the eval in the chat.
 
 module.exports = new CommandBlock({
-    identity: ["eval", "evaluate", "js"],
-    description: "Evaluates arbitrary javascript. A huge security hole/risk for development purposes: arbitrary javascript evaluation. Should only be allowed to those who already possess the bot's token.",
+    names: ["eval", "evaluate", "js"],
+    description: "A huge security hole/risk for development purposes, this command evaluates arbitrary javascript evaluation. This command should only be allowed to those who already possess the bot's token.",
     usage: "[javascript]",
     locked: ["hosts", "trusted"],
-    clientPermissions: ["USE_EXTERNAL_EMOJIS", "ADD_REACTIONS"],
+    clientChannelPermissions: ["USE_EXTERNAL_EMOJIS", "ADD_REACTIONS"],
 }, async function(client, message, code, args) {
     if (!code) return message.react(client.reactions.negative.id);
     
@@ -20,13 +20,13 @@ module.exports = new CommandBlock({
         const result = eval(code);
         const cleaned = (isString(result) ? result : inspect(result)).replace(client.token, "<client.token>"); // This is *only* a basic precaution. 
         message.react(client.reactions.positive.id);
-        log.debug(`JavaScript eval from ${message.author.tag} resulted in:`, result);
+        log.debug(`Eval from ${message.author.tag} resulted in:`, result);
         output = await message.reply({ content: `\`\`\`js\n${cleaned.length > 1991 ? cleaned.substring(0, 1988) + "..." : (cleaned || "undefined")}\`\`\``, allowedMentions: { repliedUser: false } });
     } catch (e) {
         const result = (isError(e) ? e.stack : e);
         const cleaned = result.replace(client.token, "<client.token>");
         message.react(client.reactions.negative.id);
-        log.error(`JavaScript eval from ${message.author.tag} caused an error:`, cleaned);
+        log.error(`Eval from ${message.author.tag} caused an error:`, cleaned);
         output = await message.reply(`${client.reactions.negative.emote} An evaluation error occurred;\`\`\`\n${(cleaned.length > 1940) ? cleaned.substring(0, 1937) + "..." : cleaned}\`\`\``);
     }
 

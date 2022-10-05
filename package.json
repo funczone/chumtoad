@@ -1,6 +1,6 @@
 {
   "name": "chumtoad",
-  "version": "3.0.0",
+  "version": "0.0.7",
   "description": "A bot for the func.zone Discord server.",
   "main": "index.js",
   "scripts": {
@@ -9,9 +9,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/funczone/chumtoad.git"
-  },
-  "engines": {
-    "node": ">=16.10.0"
   },
   "author": "https://github.com/funczone/chumtoad/graphs/contributors",
   "license": "Unlicense",
@@ -31,9 +28,13 @@
     "luxon": "^2.1.1",
     "node-fetch": "^2.6.7",
     "rcon-client": "^4.2.3",
+    "semver": "^7.3.7",
     "slash": "^3.0.0",
     "source-server-query": "^2.1.4",
     "steamid": "^2.0.0",
     "utf-8-validate": "^5.0.2"
+  },
+  "engines": {
+    "node": ">=16.10.0"
   }
 }
