@@ -8,8 +8,6 @@ const CommandBlock = require("../../modules/CommandBlock");
 const roleStorageDir = ["local", "roles"]; // Location of where the roles are being stored in the storage database.
 const { find, remove, findIndex } = require("lodash");
 
-const log = require("../../modules/log");
-
 /**
  * A list of system groups that are allowed to modify roles within the bot and func.zone.
  * If its equal to "*", everyone will be able to modify roles.
@@ -82,9 +80,6 @@ module.exports = [
         const roleStorage = client.storage.get(roleStorageDir);
         const roleobj = find(roleStorage, { name: role }) || find(roleStorage, { id: role });
         const idtype = message.guild.roles.cache.has(alias) ? "roles" : message.guild.members.cache.has(alias) ? "users" : alias === "*" ? "wildcard" : null;
-
-        log.debug("roleobj", roleobj);
-        log.debug("idtype", idtype);
 
         switch(subcommand) {
             case "join":
@@ -371,7 +366,7 @@ module.exports = [
         funconly: true
     }, async function(client, message, content, args) {
         const prefix = client.config.get(["commands", "prefix"]);
-        message.content = `${prefix} role list`;
-        return client.commands.runByName("role", message, message.content, message.content.slice(prefix.length).trim().split(/ +/g));
+        message.content = `role list`;
+        return client.commands.runByName("role", message, `${prefix} ${message.content}`, message.content.slice(prefix.length).trim().split(/ +/g));
     })
 ];
