@@ -59,7 +59,7 @@ module.exports = [
         names: ["role"],
         summary: "Allows you to join or leave a role.\nUsers and roles can also be disallowed and allowed to join certain roles. If you're disallowed from a role, you cannot join it unless you're *specifically* allowed to use it via user ID or role ID.\nTo see roles you can actually join, perform \`role list\`. \`roles\` is an alias of this command.",
         usage: "[join [role_name]] [leave [role_name]] [restrictions [role_name]] [list]",
-        funconly: true
+        guilds: "661830624797261824",
     }, async function(client, message, content, [subcommand, role, alias, ...args]) {
         if(!client.storage.has(roleStorageDir)) {
             client.storage.set(roleStorageDir, []);
@@ -363,10 +363,8 @@ module.exports = [
     new CommandBlock({
         names: ["roles", "listroles"],
         description: "Lists the roles you are able to join.\n\nThis command is an alias of the `role list` subcommand.",
-        funconly: true
+        guilds: "661830624797261824",
     }, async function(client, message, content, args) {
-        const prefix = client.config.get(["commands", "prefix"]);
-        message.content = `role list`;
-        return client.commands.runByName("role", message, `${prefix} ${message.content}`, message.content.slice(prefix.length).trim().split(/ +/g));
+        return client.commands.runByName("role", message, "list", ["list"]);
     })
 ];

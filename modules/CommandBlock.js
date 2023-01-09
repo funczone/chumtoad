@@ -206,6 +206,24 @@ class CommandBlock extends BaseBlock {
      * @param {Discord.Message} message
      * @returns {boolean}
      */
+    checkGuildStatus(message) {
+        if (isString(this.guilds)) {
+            if(this.guilds === message.guild.id) return true;
+            return false;
+        } else if (isArray(this.guilds)) {
+            for(const guildID of this.guilds) {
+                if(guildID === message.guild.id) return true;
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * @param {Discord.Message} message
+     * @returns {boolean}
+     */
     checkLocked(message) {
         const client = message.client;
         if (!this.locked) return true;
@@ -276,6 +294,7 @@ class CommandBlock extends BaseBlock {
         }
         if (has(data, "nsfw") && !isNil(data.nsfw)) if (!isBoolean(data.nsfw)) throw new TypeError("CommandBlock#nsfw must be a boolean.");
         if (has(data, "locked") && !isNil(data.locked)) if (!isBoolean(data.locked) && !isString(data.locked) && !isArrayOfStrings(data.locked)) throw new TypeError("CommandBlock#locked must be a boolean, string, or an Array of strings.");
+        if (has(data, "guilds") && !isNil(data.guilds)) if (!isString(data.guilds) && !isArrayOfStrings(data.guilds)) throw new TypeError("CommandBlock#guilds must be a string or an Array of strings.");
         if (has(data, "clientPermissions") && !isNil(data.clientPermissions)) {
             if (isArray(data.clientPermissions)) {
                 for (const value of data.clientPermissions) {
