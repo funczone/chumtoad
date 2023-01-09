@@ -337,8 +337,8 @@ module.exports = [
                 let str = "```diff\n";
                 str += `+ USERS ALLOWED: ${await buildString(roleobj.allowed.users)}\n`;
                 str += `- USERS DISALLOWED: ${await buildString(roleobj.disallowed.users)}\n\n`;
-                str += `+ ROLES ALLOWED: ${await buildString(roleobj.allowed.roles)}\n`;
-                str += `- ROLES DISALLOWED: ${await buildString(roleobj.disallowed.roles)}\n`;
+                str += `+ ROLES ALLOWED: ${await buildString(roleobj.allowed.roles, true)}\n`;
+                str += `- ROLES DISALLOWED: ${await buildString(roleobj.disallowed.roles, true)}\n`;
                 str += "```";
                 message.reply({ content: str, allowedMentions: { parse: [] } });
                 break;
