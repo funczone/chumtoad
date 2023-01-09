@@ -15,7 +15,7 @@ module.exports = new CommandBlock({
     usage: "[lua]",
 }, function(client, message, content, args) {
     if(os.platform() == "win32") {
-        return message.reply(`${client.reactions.negative.emote} The lua command is not yet supported on Windows systems yet.`);
+        return message.reply(`${client.reactions.negative.emote} The lua command is not yet supported on Windows systems.`);
     }
 
     const shell = spawn(lua[os.platform()]);

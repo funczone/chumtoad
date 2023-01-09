@@ -31,6 +31,15 @@
  * @property {EmojiIdentifierResolvable} metadata.reactions.inquiry Emoji representing something unknown, questioning, confusion
  * @property {EmojiIdentifierResolvable} metadata.reactions.alert Emoji representing something that invokes attention, a warning, an alert
  * @property {EmojiIdentifierResolvable} metadata.reactions.cooldown Emoji representing something involving time, a cool down, a delay, a rate limit
+ * @property {EmojiIdentifierResolvable} metadata.reactions.online Emoji representing the status of being online.
+ * @property {EmojiIdentifierResolvable} metadata.reactions.offline Emoji representing the status of being offline.
+ * @property {Object} auth Keys and sensitive stuff. Like the bot token, but for other websites!
+ * @property {Object} auth.rcon Things for authorization with an rcon server - utilized with the rcon command.
+ * @property {string} auth.rcon.ip The rcon server IP.
+ * @property {string} auth.rcon.pass The rcon server password.
+ * @property {string} auth.rcon.port The rcon server port.
+ * @property {Object} auth.steam Things for authorization with steam.
+ * @property {string} auth.steam.apikey The steam web API key.
  */
  module.exports.defaultConfig = {
     "client": {
@@ -144,3 +153,14 @@ module.exports.defaultCommandData = {
  * Same deal as the default CommandBlock properties above re: static properties on the class
  */
 module.exports.defaultListenerData = {};
+
+/**
+ * Default JSONManager config.
+ * See modules/JSONManager.js to see all options.
+ */
+module.exports.defaultJSONManagerConfig = {
+    verbose: true,
+    interval: {
+        duration: 120000
+    }
+}

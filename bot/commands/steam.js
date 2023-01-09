@@ -11,7 +11,7 @@ module.exports = [
         description: "Gets someones Steam profile information.",
         usage: "[SteamID or custom URL]"
     }, async function(client, message, content, [id]) {
-        const apikey = client.config.get("auth.steam.apikey").value();
+        const apikey = client.config.get("auth.steam.apikey");
         if(!apikey) {
             return message.reply(`${client.reactions.negative.emote} You need to configure an API key.`);
         }
@@ -35,7 +35,6 @@ module.exports = [
         const resp = await fetch(`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apikey}&steamids=${steamID.getSteamID64()}`);
         const json = await resp.json();
         const profile = json.response.players[0];
-        //require("../../modules/log").debug(JSON.stringify(json, null, 4));
 
         const embed = new MessageEmbed()
             .setColor("#1b2838")

@@ -35,13 +35,18 @@ module.exports.lovely = function(object, whitespace = 2, codeBlock = false) {
 };
 
 /**
- * Checks if a value is a non-empty array that only contains strings
+ * Checks if a value is a array that only contains strings, and by default, a non-empty array
  * @param {*} value
- * @returns {boolean} Returns `true` if value is a non-empty array that only contains strings, else `false`
+ * @param {boolean} [checkLength=true] Whether the array's length is checked
+ * @returns {boolean} Returns `true` if value is an array that only contains strings, else `false`
  */
-module.exports.isArrayOfStrings = function(value) {
+module.exports.isArrayOfStrings = function(value, checkLength = true) {
     if (!isArray(value)) return false;
-    if (!value.length) return false;
+    if (checkLength) {
+        if (!value.length) return false;
+    } else if (!value.length) {
+        return true;
+    }
     return !value.some(element => !isString(element));
 };
 
@@ -257,4 +262,4 @@ module.exports.useragents = {
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.3 Safari/605.1.15",
         "Mozilla/5.0 (X11; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0"
     ]
-}
+};

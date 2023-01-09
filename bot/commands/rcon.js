@@ -8,15 +8,14 @@ module.exports = [
         usage: "[rcon command]",
         locked: ["hosts", "staff"]
     }, async function(client, message, content, args) {
-        const ip = client.config.get("auth.rcon.ip").value();
-        const pass = client.config.get("auth.rcon.pass").value();
-        const port = client.config.get("auth.rcon.port").value();
+        const ip = client.config.get("auth.rcon.ip");
+        const pass = client.config.get("auth.rcon.pass");
+        const port = client.config.get("auth.rcon.port");
         if(!ip || !pass || !port) {
             return message.reply(`${client.reactions.negative.emote} You need to configure the rcon IP, password, and port.`);
         }
 
         const server = new Rcon({ host: ip, port: port, password: pass });
-
         let result;
         try {
             await server.connect();

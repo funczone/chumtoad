@@ -10,7 +10,7 @@ const preview = {
 
 const autofill = {};
 
-let description = "Querys source engine servers.\`\`\`markdown\n# AUTOFILL OPTIONS\nUse one of the strings in turquoise to quickly query one of our servers.\n";
+let description = "Querys a Source engine server. The port is optional and is `27015` by default.\`\`\`markdown\n# AUTOFILL OPTIONS\nUse one of the strings in turquoise to quickly query one of our servers.\n";
 for(const key in autofill) {
     let i = autofill[key];
     description += `* [ ${key} ][ ${i.ip}${i.port ? ":" + i.port : ""} ]\n`;
@@ -22,7 +22,7 @@ const ipv4 = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)(\.(?!$)|$)){4}$/; // https://sta
 module.exports = new CommandBlock({
     names: ["query", "q", "srcds"],
     description: description,
-    usage: "ip:port",
+    usage: "[ip:port]",
     locked: "hosts",
 }, async function(client, message, content, [ip, port]) {
     if(!ip) return message.reply(`${client.reactions.negative.emote} You must input a server IP or an autofill server. Perform \`help ${this.firstName}\` for more information.`);
@@ -71,7 +71,6 @@ module.exports = new CommandBlock({
 
     embed.setTitle(info.name)
         .setColor("#43B581")
-        .addField(`Basic Info`, `IP: \`${vanity}\`\nConnect: steam://connect/${vanity}`)
         .setFooter({ text: "This server is online!", iconURL: `https://cdn.discordapp.com/emojis/${client.reactions.online.id}.png` });
 
     let plys = "";
@@ -83,8 +82,18 @@ module.exports = new CommandBlock({
     if(!plys) plys = "Dead server. :(";
     plys = Util.escapeMarkdown(plys);
 
-    embed.addField(`Current Players (${info.players}/${info.max_players}${info.players >= info.max_players ? " - full!" : ``})`, plys)
-        .addField(`Current Map`, `\`${info.map}\``);
+    embed.addFields([
+        {
+            name: "Basic Info",
+            value: `IP: \`${vanity}\`\nConnect: steam://connect/${vanity}`
+        }, {
+            name: `Current Players (${info.players}/${info.max_players}${info.players >= info.max_players ? " - full!" : ``})`,
+            value: plys
+        }, {
+            name: "Current Map",
+            value: `\`${info.map}\``
+        }
+    ]);
 
     // lil hardcoded preview system. in the future it would be good to use a static image host for this. 
     if(qi && qi.game === "garrysmod") {
