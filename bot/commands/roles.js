@@ -314,7 +314,7 @@ module.exports = [
                     let str = "";
                     if(Array.isArray(group)) {
                         const ids = [];
-                        for(const value of roleobj.allowed.users) {
+                        for(const value of group) {
                             try {
                                 if(isRole) {
                                     const role = await message.guild.roles.fetch(value);
